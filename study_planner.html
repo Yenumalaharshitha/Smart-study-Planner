@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Study Planner</title>
+  <style>
+    /* ========== GENERAL STYLES ========== */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fa;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    header {
+      background: #4a90e2;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 800px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #4a90e2;
+    }
+
+    /* ========== FORM STYLING ========== */
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      background: #4a90e2;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #357abd;
+    }
+
+    /* ========== TASK LIST ========== */
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f9f9f9;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 5px solid #4a90e2;
+      transition: 0.3s;
+    }
+
+    li.completed {
+      text-decoration: line-through;
+      background: #d3f9d8;
+      border-left: 5px solid #2ecc71;
+    }
+
+    .task-info {
+      flex: 1;
+    }
+
+    .task-actions button {
+      margin-left: 8px;
+      padding: 6px 10px;
+      font-size: 0.9rem;
+    }
+
+    .delete-btn {
+      background: #e74c3c;
+    }
+
+    .delete-btn:hover {
+      background: #c0392b;
+    }
+
+    .complete-btn {
+      background: #2ecc71;
+    }
+
+    .complete-btn:hover {
+      background: #27ae60;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    📚 Smart Study Planner
+  </header>
+
+  <div class="container">
+    <h2>Add Study Task</h2>
+    <form id="taskForm">
+      <input type="text" id="subject" placeholder="Subject" required>
+      <input type="text" id="topic" placeholder="Topic" required>
+      <input type="date" id="deadline" required>
+      <button type="submit">➕ Add Task</button>
+    </form>
+
+    <h2>My Study Plan</h2>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    const taskForm = document.getElementById("taskForm");
+    const taskList = document.getElementById("taskList");
+
+    // Load tasks from localStorage
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    // Save tasks to localStorage
+    function saveTasks() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    // Render tasks
+    function renderTasks() {
+      taskList.innerHTML = "";
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        li.className = task.completed ? "completed" : "";
+
+        li.innerHTML = `
+          <div class="task-info">
+            <strong>${task.subject}</strong> - ${task.topic} <br>
+            <small>Deadline: ${task.deadline}</small>
+          </div>
+          <div class="task-actions">
+            <button class="complete-btn" onclick="toggleComplete(${index})">
+              ${task.completed ? "Undo" : "Complete"}
+            </button>
+            <button class="delete-btn" onclick="deleteTask(${index})">Delete</button>
+          </div>
+        `;
+
+        taskList.appendChild(li);
+      });
+    }
+
+    // Add task
+    taskForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const subject = document.getElementById("subject").value;
+      const topic = document.getElementById("topic").value;
+      const deadline = document.getElementById("deadline").value;
+
+      tasks.push({ subject, topic, deadline, completed: false });
+      saveTasks();
+      renderTasks();
+
+      taskForm.reset();
+    });
+
+    // Toggle complete
+    function toggleComplete(index) {
+      tasks[index].completed = !tasks[index].completed;
+      saveTasks();
+      renderTasks();
+    }
+
+    // Delete task
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      saveTasks();
+      renderTasks();
+    }
+
+    // Initial render
+    renderTasks();
+  </script>
+
+</body>
+</html>
+
